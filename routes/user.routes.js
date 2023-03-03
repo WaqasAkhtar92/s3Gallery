@@ -11,7 +11,7 @@ const router = express.Router();
 //   auth,
 //   userController.refreshStorageSize
 // );
-
+// this is not working dont user this route. for future development only
 router
   .route('/user-detailed/:userId')
   //
