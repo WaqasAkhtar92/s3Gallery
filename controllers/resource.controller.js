@@ -97,6 +97,17 @@ exports.newUpload = async (req, res) => {
 
         const newFiles = await Resource.insertMany(results);
 
+        const newChildren = newFiles.map((file) => file._id);
+        newChildrenList.push(newChildren);
+        console.log(newChildrenList, 'this is newChildrenList');
+
+        const updatedParentFolder = await Resource.findByIdAndUpdate(parent, {
+          $set: {
+            children: newChildrenList,
+          },
+        });
+        console.log(updatedParentFolder, 'is updated Children');
+
         // newChildrenList.push(...newFiles.map((file) => file._id));
         // console.log(newChildrenList, 'this is newChildrenList');
 
