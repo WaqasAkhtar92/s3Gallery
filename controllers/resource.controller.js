@@ -214,7 +214,7 @@ exports.newUpload = async (req, res) => {
   //if file/s'
 };
 
-exports.getFileList = async (req, res) => {
+exports.getFileList = async (req, res, next) => {
   try {
     const { user } = req;
     const queryObject = { ...req.query, owner: user._id };
@@ -260,10 +260,7 @@ exports.getFileList = async (req, res) => {
       data: { resources },
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      message: error.message,
-    });
+    next(error);
   }
 };
 
@@ -324,16 +321,7 @@ exports.Delete = async (req, res, next) => {
 exports.renameResource = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    console.log(req.params);
     const { newName } = req.body;
-
-    // if (!resource.isFile) {
-    //   if (resource.children.length > 1) {
-    //     // const updatedChildren = await Promise.all();
-    //   }
-    // }
-
     const resource = await Resource.findByIdAndUpdate(id, {
       $set: { name: newName },
     });

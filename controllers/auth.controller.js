@@ -7,7 +7,7 @@ const PasswordResetToken = require('../models/passwordResetToken.model');
 const { jwtExpirationInterval } = require('../config/vars');
 const APIError = require('../errors/api-error');
 const emailProvider = require('../services/emails/emailProvider');
-const {  uploadFolder } = require('../utils/uploadHelper');
+const { uploadFolder } = require('../utils/uploadHelper');
 
 /**
  * Returns a formated object with tokens
@@ -34,7 +34,6 @@ exports.register = async (req, res, next) => {
 
     const s3RootFolder = await uploadFolder(user._id);
     // if (s3RootFolder.$metadata.httpStatusCode !== 404) {
-      
     //   };
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
