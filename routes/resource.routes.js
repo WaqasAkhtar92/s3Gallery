@@ -12,8 +12,8 @@ router
   .route('/:id?')
   .get(authorize(), resourceController.getFileList)
   .post(authorize(), upload.array('myFile'), resourceController.newUpload)
-  .patch(resourceController.renameResource)
-  .delete();
+  .patch(authorize(), resourceController.renameResource)
+  .delete(authorize(), resourceController.Delete);
 
 // router
 //   .route('/:id')

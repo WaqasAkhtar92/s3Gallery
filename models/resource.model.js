@@ -21,14 +21,8 @@ const resourceSchema = new mongoose.Schema(
     },
     parentList: [
       {
-        parentId: {
-          type: String,
-          required: true,
-        },
-        parentName: {
-          type: String,
-          required: true,
-        },
+        type: Schema.Types.ObjectId,
+        ref: 'Resource',
       },
     ],
     children: [
@@ -40,6 +34,10 @@ const resourceSchema = new mongoose.Schema(
     owner: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
+    },
+    size: {
+      type: Number,
       required: true,
     },
     url: {
