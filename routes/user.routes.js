@@ -12,10 +12,10 @@ const router = express.Router();
 //   userController.refreshStorageSize
 // );
 // this is not working dont user this route. for future development only
-router
-  .route('/user-detailed/:userId')
-  //
-  .get(authorize(), userController.getUserDetailed);
+// router
+//   .route('/user-detailed/:userId')
+//   //
+//   .get(authorize(), userController.getUserDetailed);
 
 // router.patch('/add-name', userController.addName);
 

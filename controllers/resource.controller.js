@@ -1,6 +1,5 @@
 const httpStatus = require('http-status');
 const { Types } = require('mongoose');
-const File = require('../models/file.model');
 const User = require('../models/user.model');
 const Resource = require('../models/resource.model');
 const ApiError = require('../errors/api-error');
@@ -47,7 +46,7 @@ exports.newUpload = async (req, res) => {
       newParentList = parentList;
       newChildrenList = children;
       newParentList.push({
-        parentId: parent,
+        parentId: folderId,
         parentName: folderCheck.name,
       });
       console.log(parentList, ' new parent list');
