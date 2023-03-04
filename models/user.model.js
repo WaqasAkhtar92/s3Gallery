@@ -54,15 +54,15 @@ const userSchema = new mongoose.Schema(
     },
     storage: {
       freeStorage: {
-        total: {
+        totalStorage: {
           type: Number,
           default: 2 * 1024 * 1024 * 1024,
         },
-        consumed: {
+        consumedStorage: {
           type: Number,
           default: 0,
         },
-        available: {
+        availableStorage: {
           type: Number,
           default: 2 * 1024 * 1024 * 1024,
         },

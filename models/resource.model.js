@@ -75,7 +75,7 @@ resourceSchema.statics = {
     }
 
     throw new APIError({
-      message: 'User does not exist',
+      message: 'Resource does not exist',
       status: httpStatus.NOT_FOUND,
     });
   },

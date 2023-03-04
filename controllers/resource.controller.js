@@ -9,9 +9,41 @@ const {
   s3Delete3,
   uploadFolder,
 } = require('../utils/uploadHelper');
-const { ObjectID } = require('bson');
 
 /// responses to be all converted to jsonp
+
+exports.loadResource = async (req, res, next, id) => {
+  try {
+    const resource = await Resource.get(id);
+    req.LoadedResource = resource;
+    if (req.method === 'DELETE') {
+      if (!resource.isFile) {
+        const checkResourceSize = await Resource.aggregate([
+          { $match: { parentList: Types.ObjectId(id), isFile: true } },
+          { $group: { _id: null, sum_val: { $sum: '$size' } } },
+        ]);
+        const deleteSize = checkResourceSize[0].sum_val;
+
+        const resourcesToBeDeleted = await Resource.aggregate([
+          { $match: { parentList: Types.ObjectId(id) } },
+        ]);
+
+        const keysForS3 = resourcesToBeDeleted.map((re) => re.key);
+        keysForS3.push(resource.key);
+        keysForS3.sort((a, b) => b.length - a.length);
+        req.deleteSize = deleteSize;
+        req.keysForS3 = keysForS3;
+        return next();
+      }
+      req.keysForS3 = [...resource.key];
+      req.deleteSize = resource.size;
+      return next();
+    }
+    return next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.newUpload = async (req, res) => {
   try {
@@ -235,63 +267,57 @@ exports.getFileList = async (req, res) => {
   }
 };
 
-exports.Delete = async (req, res) => {
+exports.Delete = async (req, res, next) => {
   try {
-    const { user } = req;
     const { id } = req.params;
-    const totalStorage = user.storage.freeStorage.total;
-    const consumedStorage = user.storage.freeStorage.consumed;
-    const availableStorage = user.storage.freeStorage.available;
+    const { user, LoadedResource, deleteSize, keysForS3 } = req;
+    const { totalStorage, consumedStorage } = user.storage.freeStorage;
+    /**
+     *  Delete Children plus current Resource from S3. key for current is
+     *  pushed into keysForS3 in param middleware
+     */
+    const deleteFile = await s3Delete3(keysForS3);
+    console.log(LoadedResource.children);
+    if (LoadedResource.children.length) {
+      // Delete Children From Database
+      const deleteChildrenFromDatabase = await Resource.deleteMany({
+        parentList: Types.ObjectId(id),
+      });
+    }
+    /**
+     * Delete the resource itself
+     */
+    const deleteResource = await Resource.findByIdAndDelete();
 
-    const resource = await Resource.aggregate([
-      { $match: { parentList: Types.ObjectId(id), isFile: true } },
-      { $group: { _id: null, sum_val: { $sum: '$size' } } },
-    ]);
-    const resourcesToBeDeleted = await Resource.aggregate([
-      { $match: { parentList: Types.ObjectId(id), isFile: true } },
-    ]);
+    /**
+     * Calculate Updated Storage For user
+     */
+    const newConsumed = consumedStorage - deleteSize;
+    const newAvailable = totalStorage - newConsumed;
+    const updatedStorage = {
+      freeStorage: {
+        totalStorage: totalStorage,
+        consumedStorage: newConsumed,
+        availableStorage: newAvailable,
+      },
+    };
 
-    console.log(resourcesToBeDeleted);
+    /**
+     * Update User Storage
+     */
 
-    const size = resource[0].sum_val;
-    console.log(typeof resource, 'is size', size);
-
-    // const key = '64031b512173005af59ef1c3/level1/';
-
-    // // console.log(resource);
-    // // const { key, size } = resource;
-    // // console.log(key);
-    // const deleteFile = await s3Delete3([key]);
-    // console.log(deleteFile);
-
-    // const newConsumed = consumedStorage - size;
-    // const newAvailable = totalStorage - newConsumed;
-    // const updatedStorage = {
-    //   freeStorage: {
-    //     total: totalStorage,
-    //     consumed: newConsumed,
-    //     available: newAvailable,
-    //   },
-    // };
-
-    // // update user Storage
-    // const updateUser = await User.findByIdAndUpdate(user._id, {
-    //   $set: {
-    //     storage: updatedStorage,
-    //   },
-    // });
-    // console.log(updateUser);
+    const updateUser = await User.findByIdAndUpdate(user._id, {
+      $set: {
+        storage: updatedStorage,
+      },
+    });
     res.status(204).json({
       status: 'success',
       requestTime: req.requestTime,
       data: null,
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      requestTime: req.requestTime,
-      message: error,
-    });
+    next(error);
   }
 };
 
@@ -301,7 +327,6 @@ exports.renameResource = async (req, res, next) => {
 
     console.log(req.params);
     const { newName } = req.body;
-    const childrenToBeUpdated = Resource.find();
 
     // if (!resource.isFile) {
     //   if (resource.children.length > 1) {

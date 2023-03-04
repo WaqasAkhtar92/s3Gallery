@@ -7,6 +7,8 @@ const { authorize, ADMIN, LOGGED_USER } = require('../middlewares/auth');
 
 const router = express.Router();
 
+//load resource when  api is called
+router.param('id', resourceController.loadResource);
 router
   //
   .route('/:id?')
