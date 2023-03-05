@@ -12,9 +12,53 @@ router.param('id', resourceController.loadResource);
 router
   //
   .route('/:id?')
+  /**
+   * @openapi
+   * /resource:
+   *   get:
+   *       tag:
+   *       - Resource
+   *       description: Responds if the app is up and running
+   *       responses:
+   *         200:
+   *           description: App is Up and Running
+   */
   .get(authorize(), resourceController.getFileList)
+  /**
+   * @openapi
+   * /resource:
+   *   post:
+   *       tag:
+   *       - Resource
+   *       description: Responds if the app is up and running
+   *       responses:
+   *         200:
+   *           description: App is Up and Running
+   */
   .post(authorize(), upload.array('myFile'), resourceController.newUpload)
+  /**
+   * @openapi
+   * /resource/:id:
+   *   patch:
+   *       tag:
+   *       - Healthcheck
+   *       description: Responds if the app is up and running
+   *       responses:
+   *         200:
+   *           description: App is Up and Running
+   */
   .patch(authorize(), resourceController.renameResource)
+  /**
+   * @openapi
+   * /resource/:id:
+   *   delete:
+   *       tag:
+   *       - Healthcheck
+   *       description: Responds if the app is up and running
+   *       responses:
+   *         200:
+   *           description: App is Up and Running
+   */
   .delete(authorize(), resourceController.Delete);
 
 // router
