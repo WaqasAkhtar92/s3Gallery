@@ -11,7 +11,7 @@ const router = express.Router();
  * @openapi
  * /status:
  *   get:
- *       tag:
+ *       tags:
  *       - Healthcheck
  *       description: Responds if the app is up and running
  *       responses:

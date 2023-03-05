@@ -16,7 +16,7 @@ router
    * @openapi
    * /resource:
    *   get:
-   *       tag:
+   *       tags:
    *       - Resource
    *       description: Responds if the app is up and running
    *       responses:
@@ -28,7 +28,7 @@ router
    * @openapi
    * /resource:
    *   post:
-   *       tag:
+   *       tags:
    *       - Resource
    *       description: Responds if the app is up and running
    *       responses:
@@ -40,8 +40,8 @@ router
    * @openapi
    * /resource/:id:
    *   patch:
-   *       tag:
-   *       - Healthcheck
+   *       tags:
+   *       - Resource
    *       description: Responds if the app is up and running
    *       responses:
    *         200:
@@ -52,8 +52,8 @@ router
    * @openapi
    * /resource/:id:
    *   delete:
-   *       tag:
-   *       - Healthcheck
+   *       tags:
+   *       - Resource
    *       description: Responds if the app is up and running
    *       responses:
    *         200:

@@ -16,7 +16,7 @@ const router = express.Router();
  * @openapi
  * /register:
  *   post:
- *       tag:
+ *       tags:
  *       - Auth
  *       description: Responds if the app is up and running
  *       responses:
@@ -28,7 +28,7 @@ router.route('/register').post(controller.register);
  * @openapi
  * /login:
  *   post:
- *       tag:
+ *       tags:
  *       - Auth
  *       description: Responds if the app is up and running
  *       responses:
@@ -42,7 +42,7 @@ router.route('/login').post(controller.login);
  * @openapi
  * /refresh-token:
  *   post:
- *       tag:
+ *       tags:
  *       - Auth
  *       description: Responds if the app is up and running
  *       responses:
@@ -56,7 +56,7 @@ router.route('/refresh-token').post(controller.refresh);
  * @openapi
  * /send-password-reset:
  *   post:
- *       tag:
+ *       tags:
  *       - Auth
  *       description: Responds if the app is up and running
  *       responses:
@@ -70,7 +70,7 @@ router.route('/send-password-reset').post(controller.sendPasswordReset);
  * @openapi
  * /reset-password:
  *   post:
- *       tag:
+ *       tags:
  *       - Auth
  *       description: Responds if the app is up and running
  *       responses:
