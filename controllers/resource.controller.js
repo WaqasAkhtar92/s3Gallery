@@ -224,9 +224,6 @@ exports.getFileList = async (req, res, next) => {
     // advanced filtering
     let queryStr = JSON.stringify(queryObject);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log('====================================');
-    console.log(JSON.parse(queryStr));
-    console.log('====================================');
 
     let query = Resource.find(JSON.parse(queryStr));
 
@@ -284,7 +281,7 @@ exports.Delete = async (req, res, next) => {
     /**
      * Delete the resource itself
      */
-    const deleteResource = await Resource.findByIdAndDelete();
+    const deleteResource = await Resource.findByIdAndDelete(id);
 
     /**
      * Calculate Updated Storage For user
