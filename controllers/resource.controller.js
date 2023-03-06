@@ -80,7 +80,6 @@ exports.newUpload = async (req, res) => {
       newParentList = parentList;
       newChildrenList = children;
       newParentList.push(folderId);
-      console.log(parentList, ' new parent list');
       parentKey = `${folderCheck.key}`;
       parent = folderId;
     }
@@ -136,19 +135,6 @@ exports.newUpload = async (req, res) => {
             children: newChildrenList,
           },
         });
-        console.log(updatedParentFolder, 'is updated Children');
-
-        // newChildrenList.push(...newFiles.map((file) => file._id));
-        // console.log(newChildrenList, 'this is newChildrenList');
-
-        // const updatedParentFolder = await Resource.findByIdAndUpdate(parent, {
-        //   $set: {
-        //     children: newChildrenList,
-        //   },
-        // });
-        // console.log(updatedParentFolder, 'is updated Children');
-
-        // update the user Storage
 
         const updatedStorage = {
           freeStorage: {
@@ -172,8 +158,6 @@ exports.newUpload = async (req, res) => {
       ////////////////////////////////////////
     } else {
       const newFolderKey = `${parentKey}${req.body.folderName}`;
-      console.log(newParentList, ' new parent List');
-      // console.log(key);
       const results = await uploadFolder(newFolderKey);
       if (results.$metadata.httpStatusCode !== 404) {
         data = {
@@ -216,7 +200,17 @@ exports.newUpload = async (req, res) => {
 exports.getFileList = async (req, res, next) => {
   try {
     const { user } = req;
-    const queryObject = { ...req.query, owner: user._id };
+    let queryObject = { ...req.query, owner: user._id };
+
+    if (
+      !req.query.parent &&
+      !req.query._id &&
+      !req.query.key &&
+      !req.query.name
+    ) {
+      queryObject = { ...req.query, owner: user._id, parent: user._id };
+      console.log('here');
+    }
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObject[el]);
 
@@ -250,18 +244,33 @@ exports.getFileList = async (req, res, next) => {
     }
     // const query = { owner: userId };
 
-    if (!req.query._id) {
-      const resources = await query.populate('parentList', 'name');
+    if (
+      !req.query.parent &&
+      !req.query._id &&
+      !req.query.key &&
+      !req.query.name
+    ) {
+      const resources = await query.populate('children');
       return res.status(200).json({
         status: 'success',
         data: { resources },
       });
     }
-    const resources = await query.populate('children');
+
+    const resources = await query
+      .populate('parentList', 'name')
+      .populate('children', 'name , isFile')
+      .exec();
     return res.status(200).json({
       status: 'success',
       data: { resources },
     });
+
+    // const resources = await query.populate('parentList', 'name');
+    // return res.status(200).json({
+    //   status: 'success',
+    //   data: { resources },
+    // });
   } catch (error) {
     next(error);
   }
