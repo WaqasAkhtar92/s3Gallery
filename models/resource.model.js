@@ -45,8 +45,8 @@ const resourceSchema = new mongoose.Schema(
     },
     key: {
       type: String,
-      required: true,
       unique: true,
+      required: true,
     },
     Parentkey: {
       type: String,
@@ -105,6 +105,8 @@ resourceSchema.statics = {
     return error;
   },
 };
+
+resourceSchema.index({ key: 1 }, { unique: true });
 
 const Resource = mongoose.model('Resource', resourceSchema);
 

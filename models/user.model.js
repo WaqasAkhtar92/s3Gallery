@@ -160,23 +160,6 @@ userSchema.statics = {
     });
   },
 
-  // async getFoldersByUserId(id) {
-  //   let user;
-
-  //   if (mongoose.Types.ObjectId.isValid(id)) {
-  //     user = await this.findById(id).populate('');
-  //     console.log(user);
-  //   }
-  //   if (user) {
-  //     return user;
-  //   }
-
-  //   throw new APIError({
-  //     message: 'User does not exist',
-  //     status: httpStatus.NOT_FOUND,
-  //   });
-  // },
-
   /**
    * Find user by email and tries to generate a JWT token
    *

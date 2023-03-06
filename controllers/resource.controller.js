@@ -48,6 +48,7 @@ exports.loadResource = async (req, res, next, id) => {
 exports.newUpload = async (req, res) => {
   try {
     const { user } = req;
+    console.log(user);
     const { isFile, folderId, folderName } = req.body;
     let parentKey = `${user._id}/`;
     let parent = user._id || folderId;
@@ -86,9 +87,8 @@ exports.newUpload = async (req, res) => {
 
     if (isFile * 1) {
       // take storage details Object // to be taken to validations section
-      const totalStorage = user.storage.freeStorage.total;
-      const consumedStorage = user.storage.freeStorage.consumed;
-      const availableStorage = user.storage.freeStorage.available;
+      const { totalStorage, consumedStorage, availableStorage } =
+        user.storage.freeStorage;
 
       //calculate total images size in a request // to be handled in middlewares
       const imagesSize = req.files.reduce((acc, file) => acc + file.size, 0);
@@ -152,9 +152,9 @@ exports.newUpload = async (req, res) => {
 
         const updatedStorage = {
           freeStorage: {
-            total: totalStorage,
-            consumed: newConsumed,
-            available: newAvailable,
+            totalStorage,
+            consumedStorage: newConsumed,
+            availableStorage: newAvailable,
           },
         };
         const updateUser = await User.findByIdAndUpdate(user._id, {
@@ -163,7 +163,7 @@ exports.newUpload = async (req, res) => {
           },
         });
 
-        res.status(201).json({
+        return res.status(201).json({
           status: 'success',
           data: { newFiles },
           storage: updatedStorage,
@@ -198,8 +198,7 @@ exports.newUpload = async (req, res) => {
             children: newChildrenList,
           },
         });
-        console.log(updatedParentFolder, 'is updated Children');
-        res.status(201).send({
+        return res.status(201).send({
           status: 'success',
           data: newResource,
         });
@@ -251,8 +250,15 @@ exports.getFileList = async (req, res, next) => {
     }
     // const query = { owner: userId };
 
-    const resources = await query;
-    res.status(200).json({
+    if (!req.query._id) {
+      const resources = await query.populate('parentList', 'name');
+      return res.status(200).json({
+        status: 'success',
+        data: { resources },
+      });
+    }
+    const resources = await query.populate('children');
+    return res.status(200).json({
       status: 'success',
       data: { resources },
     });
@@ -305,7 +311,7 @@ exports.Delete = async (req, res, next) => {
         storage: updatedStorage,
       },
     });
-    res.status(204).json({
+    return res.status(204).json({
       status: 'success',
       requestTime: req.requestTime,
       data: null,
@@ -322,7 +328,7 @@ exports.renameResource = async (req, res, next) => {
     const resource = await Resource.findByIdAndUpdate(id, {
       $set: { name: name },
     });
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       data: {
         resource: resource,
