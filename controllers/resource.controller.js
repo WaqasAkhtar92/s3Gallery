@@ -318,9 +318,9 @@ exports.Delete = async (req, res, next) => {
 exports.renameResource = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { newName } = req.body;
+    const { name } = req.body;
     const resource = await Resource.findByIdAndUpdate(id, {
-      $set: { name: newName },
+      $set: { name: name },
     });
     res.status(200).json({
       status: 'success',
